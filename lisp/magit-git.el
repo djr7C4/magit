@@ -392,16 +392,19 @@ kludge to fix an unusable value of `shell-file-name'."
        ,@body)))
 
 (defmacro magit--with-temp-process-buffer (&rest body)
-  "Like `with-temp-buffer', but always propagate `process-environment'.
-When that var is buffer-local in the calling buffer, it is not
-propagated by `with-temp-buffer', so we explicitly ensure that
-happens, so that processes will be invoked consistently.  BODY is
-as for that macro."
+  "Like `with-temp-buffer', but always propagate `process-environment'
+and `magit-git-global-arguments'.  When those vars are
+buffer-local in the calling buffer, it is not propagated by
+`with-temp-buffer', so we explicitly ensure that happens, so that
+processes will be invoked consistently.  BODY is as for that
+macro."
   (declare (indent 0) (debug (body)))
-  (let ((p (gensym)))
-    `(let ((,p process-environment))
+  (let ((g (gensym)) (p (gensym)))
+    `(let ((,g magit-git-global-arguments)
+           (,p process-environment))
        (with-temp-buffer
-         (setq-local process-environment ,p)
+         (setq-local magit-git-global-arguments ,g
+                     process-environment ,p)
          ,@body))))
 
 (defsubst magit-git-executable ()
